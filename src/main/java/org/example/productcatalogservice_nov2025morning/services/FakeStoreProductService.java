@@ -1,6 +1,5 @@
 package org.example.productcatalogservice_nov2025morning.services;
 
-import org.apache.catalina.mbeans.MBeanUtils;
 import org.example.productcatalogservice_nov2025morning.dtos.FakeStoreProductDto;
 import org.example.productcatalogservice_nov2025morning.models.Category;
 import org.example.productcatalogservice_nov2025morning.models.Product;
@@ -44,6 +43,26 @@ public class FakeStoreProductService implements IProductService {
 
     @Override
     public Product createProduct(Product input) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        FakeStoreProductDto fakeStoreProductDto = new FakeStoreProductDto();
+        fakeStoreProductDto.setId(input.getId());
+        fakeStoreProductDto.setTitle(input.getName());
+        fakeStoreProductDto.setDescription(input.getDescription());
+        fakeStoreProductDto.setPrice(input.getPrice());
+        fakeStoreProductDto.setImage(input.getImageUrl());
+        fakeStoreProductDto.setCategory(input.getCategory().getName());
+
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity(
+            "https://fakestoreapi.com/products",
+            fakeStoreProductDto,
+            FakeStoreProductDto.class
+        );
+        System.out.println("Response Status Code: " + response.getStatusCode());
+        System.out.println("Response Body: " + response.getBody());
+
+        if (response.hasBody() && response.getStatusCode().equals(HttpStatusCode.valueOf(201))) {
+            return from(response.getBody());
+        }
         return null;
     }
 
